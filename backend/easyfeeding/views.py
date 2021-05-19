@@ -6,7 +6,10 @@ from .models import Ingredient, Unit, Category
 
 class IngredientView(viewsets.ModelViewSet):
     serializer_class = IngredientSerializer
-    queryset = Ingredient.objects.all()
+
+    def get_queryset(self):
+        query_set = Ingredient.objects.filter(user=self.request.user)
+        return query_set
 
 
 class UnitView(viewsets.ModelViewSet):
