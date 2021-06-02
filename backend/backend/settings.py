@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
-    'easyfeeding',
+    'recipe_db',
 ]
 
 MIDDLEWARE = [
@@ -83,9 +83,9 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'easyfeeding',
-        'USER': 'easyfeeding',
-        'PASSWORD': 'dAv4voKXY!$8K35#ioES',
+        'NAME': 'recipe_db',
+        'USER': 'recipe_db',
+        'PASSWORD': '$z2S*Se97@wxHrRANBRz',
         'HOST': '127.0.0.1',
     }
 }

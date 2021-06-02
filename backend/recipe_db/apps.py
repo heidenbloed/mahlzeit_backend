@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class EasyfeedingConfig(AppConfig):
+class RecipeDbConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'easyfeeding'
+    name = 'recipe_db'
