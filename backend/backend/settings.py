@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'recipe_db',
+    'django_filters'
 ]
 
 MIDDLEWARE = [
@@ -145,7 +146,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated'
-    ]
+    ],
 }
 
 SWAGGER_SETTINGS = {

@@ -23,9 +23,12 @@ from drf_yasg import openapi
 from recipe_db import views
 
 router = routers.DefaultRouter()
+router.register(r'recipes', views.RecipeView, 'recipe')
 router.register(r'ingredients', views.IngredientView, 'ingredient')
+router.register(r'quantified_ingredients', views.QuantifiedIngredientView, 'quantified_ingredient')
 router.register(r'units', views.UnitView, 'unit')
-router.register(r'categories', views.CategoryView, 'category')
+router.register(r'ingredient_categories', views.IngredientCategoryView, 'ingredient_category')
+router.register(r'labels', views.LabelView, 'label')
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -35,7 +38,6 @@ schema_view = get_schema_view(
    public=True,
    permission_classes=[permissions.AllowAny],
 )
-
 
 urlpatterns = [
     path('admin/', admin.site.urls),

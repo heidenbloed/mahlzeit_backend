@@ -1,8 +1,11 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Ingredient, Category, Unit
+from .models import Recipe, Ingredient, QuantifiedIngredient, IngredientCategory, Unit, Label
 
+admin.site.register(Recipe)
 admin.site.register(Ingredient)
-admin.site.register(Category)
+admin.site.register(QuantifiedIngredient)
+admin.site.register(IngredientCategory)
 admin.site.register(Unit)
+admin.site.register(Label)
