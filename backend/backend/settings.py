@@ -27,8 +27,8 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 DEBUG = os.environ.get('DJANGO_DEBUG', False)
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-env_allowed_host = os.environ.get('DJANGO_ALLOWED_HOST', None)
-if env_allowed_host:
+env_allowed_host = os.environ.get('DJANGO_ALLOWED_HOST')
+if env_allowed_host is not None:
     ALLOWED_HOSTS.append(env_allowed_host)
 
 
@@ -133,6 +133,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
