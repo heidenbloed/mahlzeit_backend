@@ -27,6 +27,7 @@ class Ingredient(models.Model):
     name = models.CharField(max_length=255)
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
     category = models.ForeignKey(IngredientCategory, on_delete=models.CASCADE)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
@@ -37,6 +38,7 @@ class Recipe(models.Model):
     preparation_time = models.IntegerField()
     source = models.CharField(max_length=255)
     labels = models.ManyToManyField(Label, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
@@ -46,6 +48,7 @@ class QuantifiedIngredient(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='quantified_ingredients')
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     quantity = models.FloatField()
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.ingredient} in {self.recipe}"
