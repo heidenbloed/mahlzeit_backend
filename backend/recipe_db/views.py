@@ -1,9 +1,9 @@
-from django.shortcuts import render
-from rest_framework import viewsets
+import time
+from rest_framework import viewsets, parsers
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
-from .serializers import RecipeNameSerializer, RecipeFullSerializer, IngredientNameSerializer, IngredientFullSerializer, UnitSerializer, IngredientCategorySerializer, QuantifiedIngredientSerializer, LabelSerializer
-from .models import Recipe, Ingredient, QuantifiedIngredient, IngredientCategory, Unit, Label
+from .serializers import RecipeNameSerializer, RecipeFullSerializer, IngredientNameSerializer, IngredientFullSerializer, UnitSerializer, IngredientCategorySerializer, QuantifiedIngredientSerializer, LabelSerializer, RecipeImageSerializer
+from .models import Recipe, Ingredient, QuantifiedIngredient, IngredientCategory, Unit, Label, RecipeImage
 from .filters import RecipeFilter
 
 
@@ -58,3 +58,9 @@ class LabelView(viewsets.ModelViewSet):
     search_fields = ['name']
     ordering_fields = '__all__'
     ordering = ['name']
+
+
+class RecipeImageView(viewsets.ModelViewSet):
+    parser_classes = (parsers.MultiPartParser,)
+    serializer_class = RecipeImageSerializer
+    queryset = RecipeImage.objects.all()

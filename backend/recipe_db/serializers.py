@@ -1,8 +1,11 @@
 from rest_framework import serializers
-from .models import Recipe, Ingredient, QuantifiedIngredient, IngredientCategory, Unit, Label
+from .models import Recipe, Ingredient, QuantifiedIngredient, IngredientCategory, Unit, Label, RecipeImage
 
 
 class TimestampField(serializers.FloatField):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs, read_only=True)
+
     def to_internal_value(self, data):
         raise NotImplementedError
 
@@ -15,7 +18,7 @@ class RecipeFullSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('id', 'name', 'preparation_time', 'source', 'labels', 'quantified_ingredients', 'updated_at')
+        fields = ('id', 'name', 'preparation_time', 'source', 'labels', 'quantified_ingredients', 'recipe_images', 'updated_at')
         read_only_fields = ('updated_at',)
 
 
@@ -71,3 +74,12 @@ class LabelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Label
         fields = '__all__'
+
+
+class RecipeImageSerializer(serializers.ModelSerializer):
+    updated_at = TimestampField()
+
+    class Meta:
+        model = RecipeImage
+        fields = '__all__'
+        read_only_fields = ('updated_at',)

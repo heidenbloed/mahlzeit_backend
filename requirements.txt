@@ -6,3 +6,4 @@ drf-yasg
 django-filter
 django-cors-middleware
 gunicorn
+pillow
