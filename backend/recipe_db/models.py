@@ -29,7 +29,7 @@ class Label(models.Model):
 
 class Ingredient(models.Model):
     name = models.CharField(max_length=255)
-    unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
+    default_unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
     category = models.ForeignKey(IngredientCategory, on_delete=models.CASCADE)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -37,12 +37,31 @@ class Ingredient(models.Model):
         return self.name
 
 
+class UnitConversion(models.Model):
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE, related_name='unit_conversions')
+    alternative_unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
+    alternative_conversion_factor = models.FloatField()
+    default_conversion_factor = models.FloatField()
+
+    def __str__(self):
+        return f"{self.alternative_unit.short_form} to default unit conversion for {self.ingredient.name}"
+
+
 class Recipe(models.Model):
     name = models.CharField(max_length=255)
     preparation_time = models.IntegerField()
     source = models.CharField(max_length=255)
+    num_servings = models.IntegerField()
     labels = models.ManyToManyField(Label, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def first_image(self):
+        images = RecipeImage.objects.filter(recipe=self).order_by("order")
+        if len(images) > 0:
+            return images[0]
+        else:
+            return None
 
     def __str__(self):
         return self.name
@@ -52,7 +71,19 @@ class QuantifiedIngredient(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='quantified_ingredients')
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     quantity = models.FloatField()
+    unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def unit_conversion_factor(self):
+        if self.unit == self.ingredient.default_unit:
+            return 1.0
+        else:
+            try:
+                conversion = UnitConversion.objects.get(ingredient=self.ingredient, alternative_unit=self.unit)
+                return conversion.default_conversion_factor / conversion.alternative_conversion_factor
+            except UnitConversion.DoesNotExist:
+                return -1.0
 
     def __str__(self):
         return f"{self.ingredient} in {self.recipe}"
@@ -61,6 +92,7 @@ class QuantifiedIngredient(models.Model):
 class RecipeImage(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='recipe_images')
     image = models.ImageField()
+    order = models.IntegerField()
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -72,6 +104,7 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
     if instance.image:
         if os.path.isfile(instance.image.path):
             os.remove(instance.image.path)
+
 
 @receiver(models.signals.pre_save, sender=RecipeImage)
 def auto_delete_file_on_change(sender, instance, **kwargs):
