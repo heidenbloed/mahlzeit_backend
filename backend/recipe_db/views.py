@@ -1,8 +1,7 @@
-import time
-from rest_framework import viewsets, parsers
+from rest_framework import viewsets, parsers, mixins
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
-from .serializers import RecipeShortSerializer, RecipeFullSerializer, IngredientShortSerializer, IngredientFullSerializer, IngredientEditSerializer, UnitSerializer, IngredientCategorySerializer, QuantifiedIngredientSerializer, LabelSerializer, RecipeImageSerializer
+from .serializers import *
 from .models import Recipe, Ingredient, QuantifiedIngredient, IngredientCategory, Unit, Label, RecipeImage
 from .filters import RecipeFilter
 
@@ -18,8 +17,14 @@ class RecipeView(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'list':
             return RecipeShortSerializer
-        else:
+        if self.action == 'retrieve':
             return RecipeFullSerializer
+        else:
+            return RecipeEditSerializer
+
+    # def retrieve(self, request, *args, **kwargs):
+    #     # time.sleep(1)
+    #     return super().retrieve(request, *args, **kwargs)
 
 
 class QuantifiedIngredientView(viewsets.ModelViewSet):
@@ -62,7 +67,7 @@ class LabelView(viewsets.ReadOnlyModelViewSet):
     ordering = ['name']
 
 
-class RecipeImageView(viewsets.ModelViewSet):
+class RecipeImageView(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
     parser_classes = (parsers.MultiPartParser,)
-    serializer_class = RecipeImageSerializer
+    serializer_class = RecipeImageFullSerializer
     queryset = RecipeImage.objects.all()

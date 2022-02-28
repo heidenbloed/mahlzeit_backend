@@ -49,9 +49,9 @@ class UnitConversion(models.Model):
 
 class Recipe(models.Model):
     name = models.CharField(max_length=255)
-    preparation_time = models.IntegerField()
+    preparation_time = models.PositiveIntegerField()
     source = models.CharField(max_length=255)
-    num_servings = models.IntegerField()
+    num_servings = models.PositiveIntegerField()
     labels = models.ManyToManyField(Label, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -79,11 +79,18 @@ class QuantifiedIngredient(models.Model):
         if self.unit == self.ingredient.default_unit:
             return 1.0
         else:
-            try:
-                conversion = UnitConversion.objects.get(ingredient=self.ingredient, alternative_unit=self.unit)
+            conversion = self.unit_conversion
+            if conversion is not None:
                 return conversion.default_conversion_factor / conversion.alternative_conversion_factor
-            except UnitConversion.DoesNotExist:
-                return -1.0
+            else:
+                return None
+
+    @property
+    def unit_conversion(self):
+        try:
+            return UnitConversion.objects.get(ingredient=self.ingredient, alternative_unit=self.unit)
+        except UnitConversion.DoesNotExist:
+            return None
 
     def __str__(self):
         return f"{self.ingredient} in {self.recipe}"

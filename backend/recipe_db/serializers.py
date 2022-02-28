@@ -108,12 +108,20 @@ class QuantifiedIngredientSerializer(serializers.ModelSerializer):
     updated_at = TimestampField()
     ingredient = IngredientShortSerializer()
     unit = UnitSerializer()
-    unit_conversion_factor = serializers.ReadOnlyField()
 
     class Meta:
         model = QuantifiedIngredient
-        fields = ('id', 'ingredient', 'quantity', 'unit', 'unit_conversion_factor', 'updated_at')
-        read_only_fields = ('unit_conversion_factor', 'updated_at')
+        fields = ('id', 'ingredient', 'quantity', 'unit', 'updated_at')
+        read_only_fields = ('id', 'updated_at',)
+
+
+class QuantifiedIngredientEditSerializer(serializers.ModelSerializer):
+    updated_at = TimestampField()
+
+    class Meta:
+        model = QuantifiedIngredient
+        fields = ('id', 'ingredient', 'quantity', 'unit', 'updated_at')
+        read_only_fields = ('id', 'updated_at',)
 
 
 class LabelSerializer(serializers.ModelSerializer):
@@ -128,7 +136,7 @@ class RecipeImageFullSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecipeImage
         fields = '__all__'
-        read_only_fields = ('updated_at',)
+        read_only_fields = ('id', 'updated_at',)
 
 
 class RecipeImageSerializer(serializers.ModelSerializer):
@@ -136,8 +144,8 @@ class RecipeImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RecipeImage
-        fields = ('id', 'image', 'updated_at')
-        read_only_fields = ('updated_at',)
+        fields = ('id', 'image', 'order', 'updated_at')
+        read_only_fields = ('id', 'updated_at',)
 
 
 class RecipeImageShortSerializer(serializers.ModelSerializer):
@@ -146,7 +154,16 @@ class RecipeImageShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecipeImage
         fields = ('id', 'image', 'updated_at')
-        read_only_fields = ('updated_at',)
+        read_only_fields = ('id', 'updated_at',)
+
+
+class RecipeImageEditSerializer(serializers.ModelSerializer):
+    updated_at = TimestampField()
+
+    class Meta:
+        model = RecipeImage
+        fields = ('id', 'image', 'order', 'updated_at')
+        read_only_fields = ('id', 'updated_at',)
 
 
 class RecipeShortSerializer(serializers.ModelSerializer):
@@ -156,7 +173,7 @@ class RecipeShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'first_image', 'updated_at')
-        read_only_fields = ('first_image', 'updated_at',)
+        read_only_fields = ('id', 'first_image', 'updated_at',)
 
 
 class RecipeFullSerializer(serializers.ModelSerializer):
@@ -168,4 +185,44 @@ class RecipeFullSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'preparation_time', 'source', 'num_servings', 'labels', 'quantified_ingredients', 'recipe_images', 'updated_at')
-        read_only_fields = ('updated_at',)
+        read_only_fields = ('id', 'updated_at',)
+
+
+class RecipeEditSerializer(serializers.ModelSerializer):
+    updated_at = TimestampField()
+    quantified_ingredients = QuantifiedIngredientEditSerializer(many=True)
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'preparation_time', 'source', 'num_servings', 'labels', 'quantified_ingredients', 'updated_at')
+        read_only_fields = ('id', 'updated_at',)
+
+    def create(self, validated_data):
+        labels_data = validated_data.pop("labels")
+        quantified_ingredients_data = validated_data.pop("quantified_ingredients")
+        recipe = Recipe.objects.create(**validated_data)
+        for label_data in labels_data:
+            recipe.labels.add(label_data)
+        for quantified_ingredient_data in quantified_ingredients_data:
+            QuantifiedIngredient.objects.create(recipe=recipe, **quantified_ingredient_data)
+        return recipe
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get("name", instance.name)
+        instance.preparation_time = validated_data.get("preparation_time", instance.preparation_time)
+        instance.source = validated_data.get("source", instance.source)
+        instance.num_servings = validated_data.get("num_servings", instance.num_servings)
+        labels_data = validated_data.get("labels")
+        if labels_data is not None:
+            instance.labels.clear()
+            for label_data in labels_data:
+                instance.labels.add(label_data)
+        quantified_ingredients_data = validated_data.get("quantified_ingredients")
+        if quantified_ingredients_data is not None:
+            for quantified_ingredient in instance.quantified_ingredients.all():
+                quantified_ingredient.delete()
+            QuantifiedIngredient.objects.bulk_create([QuantifiedIngredient(recipe=instance, **quantified_ingredient_data)
+                                                      for quantified_ingredient_data in quantified_ingredients_data])
+        instance.save()
+        return instance
+
