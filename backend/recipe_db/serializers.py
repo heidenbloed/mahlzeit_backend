@@ -168,11 +168,11 @@ class RecipeImageEditSerializer(serializers.ModelSerializer):
 
 class RecipeShortSerializer(serializers.ModelSerializer):
     updated_at = TimestampField()
-    first_image = RecipeImageShortSerializer()
+    first_image = RecipeImageShortSerializer(allow_null=True)
 
     class Meta:
         model = Recipe
-        fields = ('id', 'name', 'first_image', 'updated_at')
+        fields = ('id', 'name', 'preparation_time', 'first_image', 'updated_at')
         read_only_fields = ('id', 'first_image', 'updated_at',)
 
 

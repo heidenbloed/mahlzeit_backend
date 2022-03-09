@@ -11,7 +11,7 @@ class RecipeView(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = RecipeFilter
     search_fields = ['name']
-    ordering_fields = ['name', 'preparation_time']
+    ordering_fields = ['name', 'preparation_time', 'updated_at']
     ordering = ['name']
 
     def get_serializer_class(self):
