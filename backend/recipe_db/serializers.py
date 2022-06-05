@@ -1,3 +1,5 @@
+import itertools
+
 from rest_framework import serializers
 from .models import Recipe, Ingredient, QuantifiedIngredient, IngredientCategory, Unit, Label, RecipeImage, UnitConversion
 
@@ -94,14 +96,69 @@ class IngredientEditSerializer(serializers.ModelSerializer):
         return ingredient
 
     def validate(self, data):
-        print(data)
-        units = {data.get("default_unit")}
-        for unit_conversion in data.get("unit_conversions"):
-            alternative_unit = unit_conversion.get("alternative_unit")
-            if unit_conversion.get("alternative_unit") in units:
-                raise serializers.ValidationError({"unit_conversions": [{"alternative_unit": "The alternative unit can not be the default unit or any other alternative unit of the ingredient."}]})
-            units.add(alternative_unit)
+        units = set()
+        new_default_unit = data.get("default_unit")
+        if new_default_unit is not None:
+            units.add(new_default_unit)
+        unit_conversions = data.get("unit_conversions")
+        if unit_conversions is not None:
+            for unit_conversion_data in unit_conversions:
+                alternative_unit = unit_conversion_data.get("alternative_unit")
+                if unit_conversion_data.get("alternative_unit") in units:
+                    raise serializers.ValidationError({"unit_conversions": [{"alternative_unit": "The alternative unit can not be the default unit or any other alternative unit of the ingredient."}]})
+                units.add(alternative_unit)
+
+        if new_default_unit is not None and self.instance is not None and new_default_unit != self.instance.default_unit.id:
+            if unit_conversions is None:
+                raise serializers.ValidationError({"unit_conversions": "Must be provided when the default unit is updated."})
+            for unit_conversion_data in unit_conversions:
+                if unit_conversion_data.get("alternative_unit") == self.instance.default_unit:
+                    break
+            else:
+                raise serializers.ValidationError({"unit_conversions": "Must contain the conversion from the old default unit to the new default unit."})
         return data
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get("name", instance.name)
+        instance.category = validated_data.get("category", instance.category)
+        new_default_unit = validated_data.get("default_unit")
+        unit_conversions = validated_data.get("unit_conversions")
+        if new_default_unit is not None and new_default_unit != instance.default_unit:
+            new_default_unit_conversion = next(unit_conv for unit_conv in unit_conversions if unit_conv["alternative_unit"] == instance.default_unit)
+            new_default_unit_conversion_default_factor = new_default_unit_conversion["default_conversion_factor"]
+            new_default_unit_conversion_alternative_factor = new_default_unit_conversion["alternative_conversion_factor"]
+            for unit_conversion in UnitConversion.objects.filter(ingredient=instance):
+                if unit_conversion.alternative_unit == new_default_unit:
+                    unit_conversion.delete()
+                else:
+                    old_default_conv_factor = unit_conversion.default_conversion_factor
+                    old_alternative_conv_factor = unit_conversion.alternative_conversion_factor
+                    new_default_conversion_factor = old_default_conv_factor * new_default_unit_conversion_default_factor
+                    new_alternative_conversion_factor = old_alternative_conv_factor * new_default_unit_conversion_alternative_factor
+                    if abs(new_default_conversion_factor) > 1e-5 and abs(new_alternative_conversion_factor) > 1e-5:
+                        for dec_power in itertools.count():
+                            if abs(new_default_conversion_factor % (10 ** (dec_power + 1))) > 1e-5 or\
+                                    abs(new_alternative_conversion_factor % (10 ** (dec_power + 1))) > 1e-5:
+                                new_default_conversion_factor *= 10 ** -dec_power
+                                new_alternative_conversion_factor *= 10 ** -dec_power
+                                break
+                    unit_conversion.default_conversion_factor = new_default_conversion_factor
+                    unit_conversion.alternative_conversion_factor = new_alternative_conversion_factor
+                    unit_conversion.save()
+            instance.default_unit = new_default_unit
+        if unit_conversions is not None:
+            for unit_conversion_data in unit_conversions:
+                alternative_unit = unit_conversion_data["alternative_unit"]
+                if alternative_unit != instance.default_unit:
+                    try:
+                        unit_conversion = UnitConversion.objects.get(ingredient=instance, alternative_unit=alternative_unit)
+                        unit_conversion.default_conversion_factor = unit_conversion_data["default_conversion_factor"]
+                        unit_conversion.alternative_conversion_factor = unit_conversion_data["alternative_conversion_factor"]
+                        unit_conversion.save()
+                    except UnitConversion.DoesNotExist:
+                        UnitConversion.objects.create(ingredient=instance, **unit_conversion_data)
+        instance.save()
+        return instance
 
 
 class QuantifiedIngredientSerializer(serializers.ModelSerializer):
