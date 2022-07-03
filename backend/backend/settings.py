@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', False)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', '85.214.83.248', 'heidenblut.eu', 'h2939356.stratoserver.net']
 env_allowed_host = os.environ.get('DJANGO_ALLOWED_HOST')
 if env_allowed_host is not None:
     ALLOWED_HOSTS.append(env_allowed_host)
