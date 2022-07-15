@@ -2,26 +2,28 @@ version: "3.9"
 
 services:
   db:
-    image: postgres
+    image: postgres:14.0-alpine
     volumes:
-      - ./data/db:/var/lib/postgresql/data
+      - ./postgres_data/data_dev:/var/lib/postgresql/data
     environment:
-      - POSTGRES_NAME=postgres
+      - POSTGRES_DB=postgres_dev
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PASSWORD=${RECIPE_DB_POSTGRES_PASSWORD}
   web:
     build: .
-    command: bash docker-entrypoint.sh
-#    command: sleep 3600
-    volumes:
-      - .:/code
+    command: python manage.py runserver 0.0.0.0:8000
     ports:
-      - "8000:8000"
+      - 8000:8000
     environment:
-      - POSTGRES_NAME=postgres
+      - POSTGRES_NAME=postgres_dev
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PASSWORD=${RECIPE_DB_POSTGRES_PASSWORD}
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
       - DJANGO_SECRET_KEY=fRGVjNTaymiywXEMUAlpHch7a6A4bL5FYvWm3vqysbduKnmcJ1zzuDFjqmJp
       - DJANGO_DEBUG=true
     depends_on:
       - db
+
+volumes:
+  postgres_data:
