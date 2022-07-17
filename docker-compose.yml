@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3"
 
 services:
   db:
@@ -22,6 +22,7 @@ services:
       - POSTGRES_PORT=5432
       - DJANGO_SECRET_KEY=fRGVjNTaymiywXEMUAlpHch7a6A4bL5FYvWm3vqysbduKnmcJ1zzuDFjqmJp
       - DJANGO_DEBUG=true
+      - DJANGO_ALLOWED_HOST=${RECIPE_DB_ALLOWED_HOST}
     depends_on:
       - db
 
