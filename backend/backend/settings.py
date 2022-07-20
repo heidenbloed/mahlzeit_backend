@@ -31,6 +31,8 @@ env_allowed_host = os.environ.get('DJANGO_ALLOWED_HOST')
 if env_allowed_host is not None:
     ALLOWED_HOSTS.append(env_allowed_host)
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 # Application definition
 
