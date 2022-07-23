@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/zsh
 
 stty -echo
 printf "Enter the sudo password, please:"
