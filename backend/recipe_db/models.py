@@ -105,6 +105,8 @@ def generate_image_path(instance, filename):
 class RecipeImage(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='recipe_images')
     image = WebPField(upload_to=generate_image_path)
+    thumbnail_card = models.ImageField(blank=True, null=True)
+    thumbnail_plan = models.ImageField(blank=True, null=True)
     order = models.IntegerField()
     updated_at = models.DateTimeField(auto_now=True)
 

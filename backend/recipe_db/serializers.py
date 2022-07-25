@@ -193,7 +193,7 @@ class RecipeImageFullSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecipeImage
         fields = '__all__'
-        read_only_fields = ('id', 'updated_at',)
+        read_only_fields = ('id', 'updated_at', 'thumbnail_card', 'thumbnail_plan')
 
 
 class RecipeImageSerializer(serializers.ModelSerializer):
@@ -201,8 +201,8 @@ class RecipeImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RecipeImage
-        fields = ('id', 'image', 'order', 'updated_at')
-        read_only_fields = ('id', 'updated_at',)
+        fields = ('id', 'image', 'thumbnail_card', 'thumbnail_plan', 'order', 'updated_at')
+        read_only_fields = ('id', 'updated_at', 'thumbnail_plan', 'thumbnail_card')
 
 
 class RecipeImageShortSerializer(serializers.ModelSerializer):
@@ -210,8 +210,8 @@ class RecipeImageShortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RecipeImage
-        fields = ('id', 'image', 'updated_at')
-        read_only_fields = ('id', 'updated_at',)
+        fields = ('id', 'image', 'thumbnail_card', 'thumbnail_plan', 'updated_at')
+        read_only_fields = ('id', 'thumbnail_card', 'thumbnail_plan', 'updated_at',)
 
 
 class RecipeImageEditSerializer(serializers.ModelSerializer):
