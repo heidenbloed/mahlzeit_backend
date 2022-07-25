@@ -1,7 +1,9 @@
 import os.path
+import uuid
 
 from django.db import models
 from django.dispatch import receiver
+from .fields import WebPField
 
 
 class Unit(models.Model):
@@ -96,9 +98,13 @@ class QuantifiedIngredient(models.Model):
         return f"{self.ingredient} in {self.recipe}"
 
 
+def generate_image_path(instance, filename):
+    return os.path.join("recipe_images", f"{uuid.uuid4().hex}.webp")
+
+
 class RecipeImage(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='recipe_images')
-    image = models.ImageField(upload_to="recipe_images")
+    image = WebPField(upload_to=generate_image_path)
     order = models.IntegerField()
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -43,7 +43,7 @@ RUN mkdir $APP_HOME/media
 WORKDIR $APP_HOME
 
 # install dependencies
-RUN apk update && apk add libpq jpeg-dev zlib-dev libjpeg
+RUN apk update && apk add libpq jpeg-dev zlib-dev libjpeg libwebp libwebp-dev
 COPY --from=builder /code/wheels /wheels
 COPY --from=builder /code/requirements.txt .
 RUN pip install --no-cache /wheels/*
