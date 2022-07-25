@@ -11,15 +11,16 @@ def move_recipe_images(apps, schema_editor):
     for recipe_image in RecipeImageModel.objects.all():
         if not recipe_image.image.name.startswith("recipe_images"):
             old_path = recipe_image.image.path
-            new_name = os.path.join("recipe_images",  recipe_image.image.name)
-            new_path = os.path.join(settings.MEDIA_ROOT, new_name)
-            while os.path.exists(new_path):
-                new_name, ext = os.path.splitext(new_name)
-                new_name = f"{new_name}_{get_random_string(7)}{ext}"
+            if os.path.exists(old_path):
+                new_name = os.path.join("recipe_images",  recipe_image.image.name)
                 new_path = os.path.join(settings.MEDIA_ROOT, new_name)
-            os.rename(old_path, new_path)
-            recipe_image.image.name = new_name
-            recipe_image.save()
+                while os.path.exists(new_path):
+                    new_name, ext = os.path.splitext(new_name)
+                    new_name = f"{new_name}_{get_random_string(7)}{ext}"
+                    new_path = os.path.join(settings.MEDIA_ROOT, new_name)
+                os.rename(old_path, new_path)
+                recipe_image.image.name = new_name
+                recipe_image.save()
 
 
 class Migration(migrations.Migration):
