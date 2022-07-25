@@ -29,7 +29,10 @@ router = routers.DefaultRouter()
 router.register(r'recipes', views.RecipeView, 'recipe')
 router.register(r'ingredients', views.IngredientView, 'ingredient')
 # router.register(r'quantified_ingredients', views.QuantifiedIngredientView, 'quantified_ingredient')
-router.register(r'recipe_image', views.RecipeImageView, 'recipe_image')
+if settings.DEBUG:
+    router.register(r'recipe_image', views.RecipeImageViewDev, 'recipe_image')
+else:
+    router.register(r'recipe_image', views.RecipeImageView, 'recipe_image')
 router.register(r'units', views.UnitView, 'unit')
 router.register(r'ingredient_categories', views.IngredientCategoryView, 'ingredient_category')
 router.register(r'labels', views.LabelView, 'label')

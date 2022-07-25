@@ -98,7 +98,7 @@ class QuantifiedIngredient(models.Model):
 
 class RecipeImage(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='recipe_images')
-    image = models.ImageField()
+    image = models.ImageField(upload_to="recipe_images")
     order = models.IntegerField()
     updated_at = models.DateTimeField(auto_now=True)
 

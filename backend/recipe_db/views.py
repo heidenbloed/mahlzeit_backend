@@ -71,3 +71,7 @@ class RecipeImageView(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.D
     parser_classes = (parsers.MultiPartParser,)
     serializer_class = RecipeImageFullSerializer
     queryset = RecipeImage.objects.all()
+
+
+class RecipeImageViewDev(RecipeImageView, mixins.RetrieveModelMixin, mixins.ListModelMixin):
+    pass
