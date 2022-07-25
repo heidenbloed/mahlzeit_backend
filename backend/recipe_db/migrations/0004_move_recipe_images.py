@@ -7,6 +7,7 @@ from django.utils.crypto import get_random_string
 
 
 def move_recipe_images(apps, schema_editor):
+    os.makedirs(os.path.join(settings.MEDIA_ROOT, "recipe_images"), exist_ok=True)
     RecipeImageModel = apps.get_model('recipe_db', 'RecipeImage')
     for recipe_image in RecipeImageModel.objects.all():
         if not recipe_image.image.name.startswith("recipe_images"):
