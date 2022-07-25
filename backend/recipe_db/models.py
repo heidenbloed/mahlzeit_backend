@@ -1,8 +1,13 @@
+import io
 import os.path
 import uuid
 
+from PIL import Image
+
 from django.db import models
 from django.dispatch import receiver
+from django.core.files.base import ContentFile
+from django.conf import settings
 from .fields import WebPField
 
 
@@ -105,10 +110,57 @@ def generate_image_path(instance, filename):
 class RecipeImage(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='recipe_images')
     image = WebPField(upload_to=generate_image_path)
-    thumbnail_card = models.ImageField(blank=True, null=True)
-    thumbnail_plan = models.ImageField(blank=True, null=True)
+    thumbnail_card = models.ImageField(blank=True, null=True, editable=False)
+    thumbnail_plan = models.ImageField(blank=True, null=True, editable=False)
     order = models.IntegerField()
     updated_at = models.DateTimeField(auto_now=True)
+
+    def make_thumbnails(self):
+        image_name = self.image.name
+        image_name, _ = os.path.splitext(image_name)
+
+        thumbnail_card_name = f"{image_name}_thumb_card.webp"
+        thumbnail_plan_name = f"{image_name}_thumb_plan.webp"
+
+        if not os.path.exists(os.path.join(settings.MEDIA_ROOT, thumbnail_card_name)):
+            thumbnail_card = Image.open(self.image.path)
+            thumbnail_plan = thumbnail_card.copy()
+
+            thumbnail_card = self.crop_image_to_aspect(thumbnail_card, 448. / 224.)
+            thumbnail_card.thumbnail((448, 224), Image.BICUBIC)
+            thumbnail_plan = self.crop_image_to_aspect(thumbnail_plan, 112. / 128.)
+            thumbnail_plan.thumbnail((112, 128), Image.BICUBIC)
+
+            thumbnail_card_io = io.BytesIO()
+            thumbnail_card.save(thumbnail_card_io, "WEBP")
+            thumbnail_card_io.seek(0)
+            self.thumbnail_card.save(thumbnail_card_name, ContentFile(thumbnail_card_io.read()), save=True)
+            thumbnail_card_io.close()
+
+            thumbnail_plan_io = io.BytesIO()
+            thumbnail_plan.save(thumbnail_plan_io, "WEBP")
+            thumbnail_plan_io.seek(0)
+            self.thumbnail_plan.save(thumbnail_plan_name, ContentFile(thumbnail_plan_io.read()), save=True)
+            thumbnail_plan_io.close()
+
+    @staticmethod
+    def crop_image_to_aspect(image: Image, aspect: float) -> Image:
+        if image.width / image.height > aspect:
+            new_width = int(image.height * aspect)
+            new_height = image.height
+        else:
+            new_width = image.width
+            new_height = int(image.width / aspect)
+        return image.crop((
+            0.5 * (image.width - new_width),
+            0.5 * (image.height - new_height),
+            0.5 * (image.width - new_width) + new_width,
+            0.5 * (image.height - new_height) + new_height)
+        )
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.make_thumbnails()
 
     def __str__(self):
         return f"Image of {self.recipe}"
@@ -116,9 +168,10 @@ class RecipeImage(models.Model):
 
 @receiver(models.signals.post_delete, sender=RecipeImage)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
-    if instance.image:
-        if os.path.isfile(instance.image.path):
-            os.remove(instance.image.path)
+    for image in [instance.image, instance.thumbnail_card, instance.thumbnail_plan]:
+        if image:
+            if os.path.isfile(image.path):
+                os.remove(image.path)
 
 
 @receiver(models.signals.pre_save, sender=RecipeImage)
@@ -127,11 +180,16 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
         return False
 
     try:
-        old_file = RecipeImage.objects.get(pk=instance.pk).image
+        old_instance = RecipeImage.objects.get(pk=instance.pk)
     except RecipeImage.DoesNotExist:
         return False
 
+    old_file = old_instance.image
     new_file = instance.image
     if not old_file == new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
+        if os.path.isfile(old_instance.thumbnail_card.path):
+            os.remove(old_instance.thumbnail_card.path)
+        if os.path.isfile(old_instance.thumbnail_plan.path):
+            os.remove(old_instance.thumbnail_plan.path)
