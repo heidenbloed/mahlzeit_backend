@@ -128,8 +128,8 @@ class RecipeImage(models.Model):
 
             thumbnail_card = self.crop_image_to_aspect(thumbnail_card, 448. / 224.)
             thumbnail_card.thumbnail((448, 224), Image.BICUBIC)
-            thumbnail_plan = self.crop_image_to_aspect(thumbnail_plan, 112. / 128.)
-            thumbnail_plan.thumbnail((112, 128), Image.BICUBIC)
+            thumbnail_plan = self.crop_image_to_aspect(thumbnail_plan, 149. / 160.)
+            thumbnail_plan.thumbnail((149, 160), Image.BICUBIC)
 
             thumbnail_card_io = io.BytesIO()
             thumbnail_card.save(thumbnail_card_io, "WEBP")

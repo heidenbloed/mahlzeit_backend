@@ -18,8 +18,8 @@ def generate_thumbnails_for_recipe_images(apps, schema_editor):
             thumbnail_plan = thumbnail_card.copy()
             thumbnail_card = crop_image_to_aspect(thumbnail_card, 448. / 224.)
             thumbnail_card.thumbnail((448, 224), Image.BICUBIC)
-            thumbnail_plan = crop_image_to_aspect(thumbnail_plan, 112. / 128.)
-            thumbnail_plan.thumbnail((112, 128), Image.BICUBIC)
+            thumbnail_plan = crop_image_to_aspect(thumbnail_plan, 149. / 160.)
+            thumbnail_plan.thumbnail((149, 160), Image.BICUBIC)
             thumbnail_card_name = f"{image_name}_thumb_card.webp"
             thumbnail_card_path = os.path.join(settings.MEDIA_ROOT, thumbnail_card_name)
             thumbnail_card.save(fp=thumbnail_card_path, format="WEBP")
