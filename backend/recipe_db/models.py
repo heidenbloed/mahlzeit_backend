@@ -117,10 +117,10 @@ class RecipeImage(models.Model):
                                        height_field='thumbnail_plan_height')
     image_width = models.IntegerField()
     image_height = models.IntegerField()
-    thumbnail_card_width = models.IntegerField()
-    thumbnail_card_height = models.IntegerField()
-    thumbnail_plan_width = models.IntegerField()
-    thumbnail_plan_height = models.IntegerField()
+    thumbnail_card_width = models.IntegerField(blank=True, null=True)
+    thumbnail_card_height = models.IntegerField(blank=True, null=True)
+    thumbnail_plan_width = models.IntegerField(blank=True, null=True)
+    thumbnail_plan_height = models.IntegerField(blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def make_thumbnails(self):
