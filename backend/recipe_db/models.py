@@ -109,10 +109,18 @@ def generate_image_path(instance, filename):
 
 class RecipeImage(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='recipe_images')
-    image = WebPField(upload_to=generate_image_path)
-    thumbnail_card = models.ImageField(blank=True, null=True, editable=False)
-    thumbnail_plan = models.ImageField(blank=True, null=True, editable=False)
+    image = WebPField(upload_to=generate_image_path, width_field='image_width', height_field='image_height')
     order = models.IntegerField()
+    thumbnail_card = models.ImageField(blank=True, null=True, editable=False, width_field='thumbnail_card_width',
+                                       height_field='thumbnail_card_height')
+    thumbnail_plan = models.ImageField(blank=True, null=True, editable=False, width_field='thumbnail_plan_width',
+                                       height_field='thumbnail_plan_height')
+    image_width = models.IntegerField()
+    image_height = models.IntegerField()
+    thumbnail_card_width = models.IntegerField()
+    thumbnail_card_height = models.IntegerField()
+    thumbnail_plan_width = models.IntegerField()
+    thumbnail_plan_height = models.IntegerField()
     updated_at = models.DateTimeField(auto_now=True)
 
     def make_thumbnails(self):

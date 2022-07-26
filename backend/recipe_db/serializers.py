@@ -193,7 +193,9 @@ class RecipeImageFullSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecipeImage
         fields = '__all__'
-        read_only_fields = ('id', 'updated_at', 'thumbnail_card', 'thumbnail_plan')
+        read_only_fields = ('id', 'updated_at', 'thumbnail_card', 'thumbnail_plan', 'image_width', 'image_height',
+                            'thumbnail_card_width', 'thumbnail_card_height', 'thumbnail_plan_width',
+                            'thumbnail_plan_height')
 
 
 class RecipeImageSerializer(serializers.ModelSerializer):
@@ -201,8 +203,12 @@ class RecipeImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RecipeImage
-        fields = ('id', 'image', 'thumbnail_card', 'thumbnail_plan', 'order', 'updated_at')
-        read_only_fields = ('id', 'updated_at', 'thumbnail_plan', 'thumbnail_card')
+        fields = ('id', 'image', 'thumbnail_card', 'thumbnail_plan', 'order', 'updated_at', 'image_width',
+                  'image_height', 'thumbnail_card_width', 'thumbnail_card_height', 'thumbnail_plan_width',
+                  'thumbnail_plan_height')
+        read_only_fields = ('id', 'updated_at', 'thumbnail_plan', 'thumbnail_card', 'image_width', 'image_height',
+                            'thumbnail_card_width', 'thumbnail_card_height', 'thumbnail_plan_width',
+                            'thumbnail_plan_height')
 
 
 class RecipeImageShortSerializer(serializers.ModelSerializer):
@@ -210,8 +216,11 @@ class RecipeImageShortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RecipeImage
-        fields = ('id', 'image', 'thumbnail_card', 'thumbnail_plan', 'updated_at')
-        read_only_fields = ('id', 'thumbnail_card', 'thumbnail_plan', 'updated_at',)
+        fields = ('id', 'image', 'thumbnail_card', 'thumbnail_plan', 'updated_at', 'image_width', 'image_height',
+                  'thumbnail_card_width', 'thumbnail_card_height', 'thumbnail_plan_width', 'thumbnail_plan_height')
+        read_only_fields = ('id', 'thumbnail_card', 'thumbnail_plan', 'updated_at', 'image_width', 'image_height',
+                            'thumbnail_card_width', 'thumbnail_card_height', 'thumbnail_plan_width',
+                            'thumbnail_plan_height')
 
 
 class RecipeImageEditSerializer(serializers.ModelSerializer):
