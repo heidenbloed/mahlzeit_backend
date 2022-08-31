@@ -250,7 +250,7 @@ class RecipeFullSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('id', 'name', 'preparation_time', 'source', 'num_servings', 'labels', 'quantified_ingredients', 'recipe_images', 'updated_at')
+        fields = ('id', 'name', 'preparation_time', 'source', 'num_servings', 'labels', 'quantified_ingredients', 'preparation_text', 'recipe_images', 'updated_at')
         read_only_fields = ('id', 'updated_at',)
 
 
@@ -260,7 +260,7 @@ class RecipeEditSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('id', 'name', 'preparation_time', 'source', 'num_servings', 'labels', 'quantified_ingredients', 'updated_at')
+        fields = ('id', 'name', 'preparation_time', 'source', 'num_servings', 'labels', 'quantified_ingredients', 'preparation_text', 'updated_at')
         read_only_fields = ('id', 'updated_at',)
 
     def create(self, validated_data):
@@ -278,6 +278,7 @@ class RecipeEditSerializer(serializers.ModelSerializer):
         instance.preparation_time = validated_data.get("preparation_time", instance.preparation_time)
         instance.source = validated_data.get("source", instance.source)
         instance.num_servings = validated_data.get("num_servings", instance.num_servings)
+        instance.preparation_text = validated_data.get("preparation_text", instance.preparation_text)
         labels_data = validated_data.get("labels")
         if labels_data is not None:
             instance.labels.clear()

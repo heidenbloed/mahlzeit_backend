@@ -59,6 +59,7 @@ class Recipe(models.Model):
     preparation_time = models.PositiveIntegerField()
     source = models.CharField(max_length=255, blank=True)
     num_servings = models.PositiveIntegerField()
+    preparation_text = models.TextField(blank=True)
     labels = models.ManyToManyField(Label, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
