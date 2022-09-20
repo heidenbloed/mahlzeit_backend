@@ -1,8 +1,10 @@
+import urllib.parse
+
 from rest_framework import viewsets, parsers, mixins
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from .serializers import *
-from .models import Recipe, Ingredient, QuantifiedIngredient, IngredientCategory, Unit, Label, RecipeImage
+from .models import Recipe, Ingredient, QuantifiedIngredient, IngredientCategory, Unit, Label, RecipeImage, PushSubscription
 from .filters import RecipeFilter
 
 
@@ -74,4 +76,27 @@ class RecipeImageView(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.D
 
 
 class RecipeImageViewDev(RecipeImageView, mixins.RetrieveModelMixin, mixins.ListModelMixin):
+    pass
+
+
+class PushSubscriptionView(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
+    serializer_class = PushSubscriptionSerializer
+    queryset = PushSubscription.objects.all()
+    lookup_value_regex = r"[a-zA-Z0-9\-_.!~*'()%]+"
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return PushSubscriptionSerializer
+        else:
+            return PushSubscriptionEditSerializer
+
+    def get_object(self):
+        if "pk" in self.kwargs or "endpoint" in self.kwargs:
+            encoded_pk = self.kwargs.pop("pk", self.kwargs.pop("endpoint", None))
+            decoded_pk = urllib.parse.unquote(encoded_pk)
+            self.kwargs["pk"] = decoded_pk
+        return super().get_object()
+
+
+class PushSubscriptionViewDev(PushSubscriptionView, mixins.RetrieveModelMixin, mixins.ListModelMixin):
     pass

@@ -1,8 +1,12 @@
+from typing import Optional
 import io
+import json
 import os.path
 import uuid
+import threading
 
 from PIL import Image
+import pywebpush
 
 from django.db import models
 from django.dispatch import receiver
@@ -202,3 +206,35 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
             os.remove(old_instance.thumbnail_card.path)
         if os.path.isfile(old_instance.thumbnail_plan.path):
             os.remove(old_instance.thumbnail_plan.path)
+
+
+class PushSubscription(models.Model):
+    endpoint = models.URLField(unique=True, primary_key=True, null=False, blank=False)
+    p256dh_key = models.CharField(max_length=100)
+    auth_key = models.CharField(max_length=50)
+    notify_at_new_recipes = models.BooleanField()
+
+    def push_message(self, title: str, body: Optional[str] = None, href: Optional[str] = None,
+                     image: Optional[str] = None, tag: Optional[str] = None, silent: bool = True):
+        push_data = {"title": title, "silent": silent}
+        if body is not None and body != "":
+            push_data["body"] = body
+        if href is not None and href != "":
+            push_data["href"] = href
+        if image is not None and image != "":
+            push_data["image"] = image
+        if tag is not None and tag != "":
+            push_data["tag"] = tag
+
+        pywebpush.webpush(
+            subscription_info={
+                "endpoint": self.endpoint,
+                "keys": {
+                    "auth": self.auth_key,
+                    "p256dh": self.p256dh_key,
+                }
+            },
+            data=json.dumps(push_data),
+            vapid_private_key=os.environ.get("DJANGO_VAPID_PRIVATE_KEY"),
+            vapid_claims={"sub": f"mailto:{os.environ.get('DJANGO_MAIL_ADDRESS')}"}
+        )

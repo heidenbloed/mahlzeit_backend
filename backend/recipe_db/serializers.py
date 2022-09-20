@@ -1,7 +1,7 @@
 import itertools
 
 from rest_framework import serializers
-from .models import Recipe, Ingredient, QuantifiedIngredient, IngredientCategory, Unit, Label, RecipeImage, UnitConversion
+from .models import Recipe, Ingredient, QuantifiedIngredient, IngredientCategory, Unit, Label, RecipeImage, UnitConversion, PushSubscription
 
 
 class TimestampField(serializers.FloatField):
@@ -293,3 +293,17 @@ class RecipeEditSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
+class PushSubscriptionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = PushSubscription
+        fields = '__all__'
+
+
+class PushSubscriptionEditSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = PushSubscription
+        fields = '__all__'
+        read_only_fields = ('endpoint',)

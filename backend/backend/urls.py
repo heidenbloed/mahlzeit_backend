@@ -36,6 +36,10 @@ else:
 router.register(r'units', views.UnitView, 'unit')
 router.register(r'ingredient_categories', views.IngredientCategoryView, 'ingredient_category')
 router.register(r'labels', views.LabelView, 'label')
+if settings.DEBUG:
+    router.register(r'push_subscriptions', views.PushSubscriptionViewDev, 'push_subscription')
+else:
+    router.register(r'push_subscriptions', views.PushSubscriptionView, 'push_subscription')
 
 
 schema_view = get_schema_view(

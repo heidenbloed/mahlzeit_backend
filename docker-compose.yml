@@ -23,6 +23,8 @@ services:
       - DJANGO_SECRET_KEY=fRGVjNTaymiywXEMUAlpHch7a6A4bL5FYvWm3vqysbduKnmcJ1zzuDFjqmJp
       - DJANGO_DEBUG=true
       - DJANGO_ALLOWED_HOST=${RECIPE_DB_ALLOWED_HOST}
+      - DJANGO_VAPID_PRIVATE_KEY=${RECIPE_DB_VAPID_PRIVATE_KEY}
+      - DJANGO_MAIL_ADDRESS="git@heidenblut.eu"
     depends_on:
       - db
 

@@ -7,3 +7,4 @@ django-filter==2.4.*
 django-cors-middleware==1.5.*
 gunicorn==20.1.*
 pillow==8.3.*
+pywebpush==1.14.0
