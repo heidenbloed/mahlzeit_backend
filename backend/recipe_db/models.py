@@ -67,6 +67,32 @@ class Recipe(models.Model):
     labels = models.ManyToManyField(Label, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request", None)
+        super().__init__(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        is_a_new_recipe = not self.pk
+        super().save(*args, **kwargs)
+
+        if is_a_new_recipe:
+            # Send push messages 5 minutes after creation.
+            threading.Timer(5.0 * 60.0, self.send_new_recipe_notifications).start()
+
+    def send_new_recipe_notifications(self):
+        image_url = None
+        if self.first_image is not None and self.request is not None:
+            image_url = self.request.build_absolute_uri(self.first_image.thumbnail_card.url)
+        for push_sub in PushSubscription.objects.filter(notify_at_new_recipes=True):
+            push_sub.push_message(
+                title=self.name,
+                body="Neues Rezept erstellt",
+                href=f"/recipe/{self.pk}/",
+                image=image_url,
+                tag=f"new-recipe-{self.pk}",
+                silent=True
+            )
+
     @property
     def first_image(self):
         images = RecipeImage.objects.filter(recipe=self).order_by("order")

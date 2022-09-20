@@ -266,7 +266,7 @@ class RecipeEditSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         labels_data = validated_data.pop("labels")
         quantified_ingredients_data = validated_data.pop("quantified_ingredients")
-        recipe = Recipe.objects.create(**validated_data)
+        recipe = Recipe.objects.create(**validated_data, request=self.context["request"])
         for label_data in labels_data:
             recipe.labels.add(label_data)
         for quantified_ingredient_data in quantified_ingredients_data:
