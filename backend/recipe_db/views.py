@@ -32,6 +32,7 @@ class RecipeView(viewsets.ModelViewSet):
 class QuantifiedIngredientView(viewsets.ModelViewSet):
     serializer_class = QuantifiedIngredientSerializer
     queryset = QuantifiedIngredient.objects.all()
+    pagination_class = None
 
 
 class IngredientView(viewsets.ModelViewSet):
@@ -53,11 +54,13 @@ class IngredientView(viewsets.ModelViewSet):
 class UnitView(viewsets.ReadOnlyModelViewSet):
     serializer_class = UnitSerializer
     queryset = Unit.objects.all()
+    pagination_class = None
 
 
 class IngredientCategoryView(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientCategorySerializer
     queryset = IngredientCategory.objects.all()
+    pagination_class = None
 
 
 class LabelView(viewsets.ReadOnlyModelViewSet):
@@ -67,6 +70,7 @@ class LabelView(viewsets.ReadOnlyModelViewSet):
     search_fields = ['name']
     ordering_fields = '__all__'
     ordering = ['name']
+    pagination_class = None
 
 
 class RecipeImageView(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
@@ -76,7 +80,7 @@ class RecipeImageView(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.D
 
 
 class RecipeImageViewDev(RecipeImageView, mixins.RetrieveModelMixin, mixins.ListModelMixin):
-    pass
+    pagination_class = None
 
 
 class PushSubscriptionView(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
