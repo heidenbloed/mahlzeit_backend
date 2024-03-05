@@ -15,6 +15,9 @@ ENV PYTHONUNBUFFERED 1
 # install psycopg2 and pillow dependencies
 RUN apk update && apk add postgresql-libs postgresql-dev libffi-dev openldap-dev unixodbc-dev gcc musl-dev python3-dev jpeg-dev zlib-dev libjpeg  libwebp libwebp-dev
 
+# install knox dependencies
+RUN apk add build-base libressl-dev libffi-dev
+
 # install dependencies
 RUN pip install --upgrade pip
 COPY ./requirements.txt /code/
@@ -43,7 +46,7 @@ RUN mkdir $APP_HOME/media
 WORKDIR $APP_HOME
 
 # install dependencies
-RUN apk update && apk add libpq jpeg-dev zlib-dev libjpeg libwebp libwebp-dev
+RUN apk update && apk add libpq jpeg-dev zlib-dev libjpeg libwebp libwebp-dev libressl-dev libffi-dev
 COPY --from=builder /code/wheels /wheels
 COPY --from=builder /code/requirements.txt .
 RUN pip install --no-cache /wheels/*
