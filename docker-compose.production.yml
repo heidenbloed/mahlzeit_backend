@@ -10,6 +10,7 @@ services:
   web:
     build:
       dockerfile: Dockerfile.production
+      network: host
       args:
         UID: ${RECIPE_DB_UID}
     command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --timeout 90
