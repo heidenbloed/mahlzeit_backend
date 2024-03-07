@@ -2,12 +2,14 @@ version: "3"
 
 services:
   db:
+    network_mode: host
     environment:
       - POSTGRES_DB=postgres_prod
     volumes:
       - ./postgres_data/data_prod:/var/lib/postgresql/data
     restart: unless-stopped
   web:
+    network_mode: host
     build:
       dockerfile: Dockerfile.production
       network: host
@@ -17,12 +19,11 @@ services:
     volumes:
       - /var/www/recipe_db_backend/static_volume:/home/app/web/static
       - /var/www/recipe_db_backend/media_volume:/home/app/web/media
-    ports:
-      - 8000:8000
     environment:
       - POSTGRES_NAME=postgres_prod
       - DJANGO_SECRET_KEY=${RECIPE_DB_DJANGO_KEY}
       - DJANGO_DEBUG=false
+      - POSTGRES_HOST=localhost
     restart: unless-stopped
 
 volumes:
