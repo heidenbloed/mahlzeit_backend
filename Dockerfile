@@ -10,6 +10,8 @@ ENV PYTHONUNBUFFERED 1
 
 # install psycopg2 dependencies
 RUN apk update && apk add postgresql-dev gcc python3-dev musl-dev jpeg-dev zlib-dev libwebp libwebp-dev
+# install knox dependencies
+RUN apk add build-base libressl-dev libffi-dev
 
 # install dependencies
 RUN pip install --upgrade pip

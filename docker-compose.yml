@@ -9,22 +9,22 @@ services:
       - POSTGRES_DB=postgres_dev
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=${RECIPE_DB_POSTGRES_PASSWORD}
+    network_mode: host
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
-    ports:
-      - 8000:8000
     environment:
       - POSTGRES_NAME=postgres_dev
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=${RECIPE_DB_POSTGRES_PASSWORD}
-      - POSTGRES_HOST=db
+      - POSTGRES_HOST=localhost
       - POSTGRES_PORT=5432
       - DJANGO_SECRET_KEY=fRGVjNTaymiywXEMUAlpHch7a6A4bL5FYvWm3vqysbduKnmcJ1zzuDFjqmJp
       - DJANGO_DEBUG=true
       - DJANGO_ALLOWED_HOST=${RECIPE_DB_ALLOWED_HOST}
       - DJANGO_VAPID_PRIVATE_KEY=${RECIPE_DB_VAPID_PRIVATE_KEY}
       - DJANGO_MAIL_ADDRESS="git@heidenblut.eu"
+    network_mode: host
     depends_on:
       - db
 

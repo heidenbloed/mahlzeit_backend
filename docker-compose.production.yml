@@ -10,14 +10,13 @@ services:
   web:
     build:
       dockerfile: Dockerfile.production
+      network: host
       args:
         UID: ${RECIPE_DB_UID}
     command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --timeout 90
     volumes:
       - /var/www/recipe_db_backend/static_volume:/home/app/web/static
       - /var/www/recipe_db_backend/media_volume:/home/app/web/media
-    ports:
-      - 8000:8000
     environment:
       - POSTGRES_NAME=postgres_prod
       - DJANGO_SECRET_KEY=${RECIPE_DB_DJANGO_KEY}

@@ -6,6 +6,12 @@ from rest_framework import filters
 from .serializers import *
 from .models import Recipe, Ingredient, QuantifiedIngredient, IngredientCategory, Unit, Label, RecipeImage, PushSubscription
 from .filters import RecipeFilter
+from knox.views import LoginView as KnoxLoginView
+from rest_framework.authentication import BasicAuthentication
+
+
+class LoginView(KnoxLoginView):
+    authentication_classes = [BasicAuthentication]
 
 
 class RecipeView(viewsets.ModelViewSet):
