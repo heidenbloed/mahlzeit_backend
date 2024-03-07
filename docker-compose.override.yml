@@ -6,8 +6,7 @@ services:
       - .:/code
   stunnel:
     image: easypi/stunnel
-    ports:
-      - 8001:8001
+    network_mode: host
     volumes:
       - ./stunnel.conf:/etc/stunnel/stunnel.conf:ro
       - ./localhost+1-key.pem:/etc/stunnel/stunnel.key:ro
