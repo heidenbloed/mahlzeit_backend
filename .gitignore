@@ -1,5 +1,6 @@
-# Pycharm
-.idea/
+# Repo specifics
+*.pem
+*dump.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
