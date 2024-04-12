@@ -17,6 +17,7 @@ services:
     volumes:
       - /var/www/recipe_db_backend/static_volume:/home/app/web/static
       - /var/www/recipe_db_backend/media_volume:/home/app/web/media
+      - ${HOME}/recipe_db_backup_data:/home/app/web/backup_data
     environment:
       - POSTGRES_NAME=postgres_prod
       - DJANGO_SECRET_KEY=${RECIPE_DB_DJANGO_KEY}
@@ -27,3 +28,4 @@ volumes:
   postgres_data:
   static_volume:
   media_volume:
+  backup_data:

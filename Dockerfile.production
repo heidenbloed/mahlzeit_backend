@@ -3,7 +3,7 @@
 ###########
 
 # pull official base image
-FROM python:3.9.6-alpine as builder
+FROM python:3.9-alpine3.19 as builder
 
 # set work directory
 WORKDIR /code
@@ -13,10 +13,10 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # install psycopg2 and pillow dependencies
-RUN apk update && apk add postgresql-libs postgresql-dev libffi-dev openldap-dev unixodbc-dev gcc musl-dev python3-dev jpeg-dev zlib-dev libjpeg  libwebp libwebp-dev
+RUN apk update && apk add postgresql-libs postgresql-dev libffi-dev openldap-dev unixodbc-dev gcc musl-dev python3-dev jpeg-dev zlib-dev libjpeg libwebp libwebp-dev
 
 # install knox dependencies
-RUN apk add build-base libressl-dev libffi-dev
+RUN apk add build-base libffi-dev
 
 # install dependencies
 RUN pip install --upgrade pip
@@ -28,7 +28,7 @@ RUN pip wheel --no-cache-dir --no-deps --wheel-dir /code/wheels -r requirements.
 # FINAL #
 #########
 
-FROM python:3.9.6-alpine
+FROM python:3.9-alpine3.19
 
 # create directory for the app user
 RUN mkdir -p /home/app
@@ -43,10 +43,11 @@ ENV APP_HOME=/home/app/web
 RUN mkdir $APP_HOME
 RUN mkdir $APP_HOME/static
 RUN mkdir $APP_HOME/media
+RUN mkdir $APP_HOME/backup_data
 WORKDIR $APP_HOME
 
 # install dependencies
-RUN apk update && apk add libpq jpeg-dev zlib-dev libjpeg libwebp libwebp-dev libressl-dev libffi-dev
+RUN apk update && apk add libpq jpeg-dev zlib-dev libjpeg libwebp libwebp-dev libffi-dev postgresql14-client
 COPY --from=builder /code/wheels /wheels
 COPY --from=builder /code/requirements.txt .
 RUN pip install --no-cache /wheels/*

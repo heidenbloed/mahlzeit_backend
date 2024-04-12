@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "knox",
     "recipe_db",
     "django_filters",
+    "dbbackup",
 ]
 
 MIDDLEWARE = [
@@ -170,3 +171,8 @@ REST_KNOX = {
 SWAGGER_SETTINGS = {
     "SECURITY_DEFINITIONS": {},
 }
+
+DBBACKUP_STORAGE = "django.core.files.storage.FileSystemStorage"
+DBBACKUP_STORAGE_OPTIONS = {"location": "/home/app/web/backup_data"}
+DBBACKUP_CLEANUP_KEEP = 3
+DBBACKUP_CLEANUP_KEEP_MEDIA = 3
