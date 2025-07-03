@@ -1,9 +1,11 @@
+from django import forms
 from django.contrib import admin, messages
 from django.contrib.admin.helpers import ActionForm
-from django import forms
 
 # Register your models here.
-from .models import Recipe, Ingredient, QuantifiedIngredient, IngredientCategory, Unit, Label, RecipeImage, UnitConversion, PushSubscription
+from .models import (Ingredient, IngredientCategory, Label, PushSubscription,
+                     QuantifiedIngredient, Recipe, RecipeImage, Unit,
+                     UnitConversion)
 
 
 class PushMessageForm(ActionForm):
@@ -28,7 +30,9 @@ class PushSubscriptionAdmin(admin.ModelAdmin):
         tag = request.POST["tag"] if "tag" in request.POST else None
         silent = request.POST["silent"] == "on" if "silent" in request.POST else True
         for push_subscription in queryset:
-            push_subscription.push_message(title=title, body=body, href=href, image=image, tag=tag, silent=silent)
+            push_subscription.push_message(
+                title=title, body=body, href=href, image=image, tag=tag, silent=silent
+            )
         self.message_user(request, "Message was pushed successfully.", messages.SUCCESS)
 
 

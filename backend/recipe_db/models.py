@@ -1,17 +1,17 @@
-from typing import Optional
 import io
 import json
 import os.path
-import uuid
 import threading
+import uuid
+from typing import Optional
 
-from PIL import Image
 import pywebpush
-
+from django.conf import settings
+from django.core.files.base import ContentFile
 from django.db import models
 from django.dispatch import receiver
-from django.core.files.base import ContentFile
-from django.conf import settings
+from PIL import Image
+
 from .fields import WebPField
 
 
@@ -49,7 +49,9 @@ class Ingredient(models.Model):
 
 
 class UnitConversion(models.Model):
-    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE, related_name='unit_conversions')
+    ingredient = models.ForeignKey(
+        Ingredient, on_delete=models.CASCADE, related_name="unit_conversions"
+    )
     alternative_unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
     alternative_conversion_factor = models.FloatField()
     default_conversion_factor = models.FloatField()
@@ -82,7 +84,9 @@ class Recipe(models.Model):
     def send_new_recipe_notifications(self):
         image_url = None
         if self.first_image is not None and self.request is not None:
-            image_url = self.request.build_absolute_uri(self.first_image.thumbnail_card.url)
+            image_url = self.request.build_absolute_uri(
+                self.first_image.thumbnail_card.url
+            )
         for push_sub in PushSubscription.objects.filter(notify_at_new_recipes=True):
             push_sub.push_message(
                 title=self.name,
@@ -90,7 +94,7 @@ class Recipe(models.Model):
                 href=f"/recipe/{self.pk}/",
                 image=image_url,
                 tag=f"new-recipe-{self.pk}",
-                silent=True
+                silent=True,
             )
 
     @property
@@ -106,7 +110,9 @@ class Recipe(models.Model):
 
 
 class QuantifiedIngredient(models.Model):
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='quantified_ingredients')
+    recipe = models.ForeignKey(
+        Recipe, on_delete=models.CASCADE, related_name="quantified_ingredients"
+    )
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     quantity = models.FloatField()
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
@@ -119,14 +125,19 @@ class QuantifiedIngredient(models.Model):
         else:
             conversion = self.unit_conversion
             if conversion is not None:
-                return conversion.default_conversion_factor / conversion.alternative_conversion_factor
+                return (
+                    conversion.default_conversion_factor
+                    / conversion.alternative_conversion_factor
+                )
             else:
                 return None
 
     @property
     def unit_conversion(self):
         try:
-            return UnitConversion.objects.get(ingredient=self.ingredient, alternative_unit=self.unit)
+            return UnitConversion.objects.get(
+                ingredient=self.ingredient, alternative_unit=self.unit
+            )
         except UnitConversion.DoesNotExist:
             return None
 
@@ -139,13 +150,29 @@ def generate_image_path(instance, filename):
 
 
 class RecipeImage(models.Model):
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='recipe_images')
-    image = WebPField(upload_to=generate_image_path, width_field='image_width', height_field='image_height')
+    recipe = models.ForeignKey(
+        Recipe, on_delete=models.CASCADE, related_name="recipe_images"
+    )
+    image = WebPField(
+        upload_to=generate_image_path,
+        width_field="image_width",
+        height_field="image_height",
+    )
     order = models.IntegerField()
-    thumbnail_card = models.ImageField(blank=True, null=True, editable=False, width_field='thumbnail_card_width',
-                                       height_field='thumbnail_card_height')
-    thumbnail_plan = models.ImageField(blank=True, null=True, editable=False, width_field='thumbnail_plan_width',
-                                       height_field='thumbnail_plan_height')
+    thumbnail_card = models.ImageField(
+        blank=True,
+        null=True,
+        editable=False,
+        width_field="thumbnail_card_width",
+        height_field="thumbnail_card_height",
+    )
+    thumbnail_plan = models.ImageField(
+        blank=True,
+        null=True,
+        editable=False,
+        width_field="thumbnail_plan_width",
+        height_field="thumbnail_plan_height",
+    )
     image_width = models.IntegerField()
     image_height = models.IntegerField()
     thumbnail_card_width = models.IntegerField(blank=True, null=True)
@@ -165,21 +192,25 @@ class RecipeImage(models.Model):
             thumbnail_card = Image.open(self.image.path)
             thumbnail_plan = thumbnail_card.copy()
 
-            thumbnail_card = self.crop_image_to_aspect(thumbnail_card, 448. / 224.)
+            thumbnail_card = self.crop_image_to_aspect(thumbnail_card, 448.0 / 224.0)
             thumbnail_card.thumbnail((448, 224), Image.BICUBIC)
-            thumbnail_plan = self.crop_image_to_aspect(thumbnail_plan, 149. / 160.)
+            thumbnail_plan = self.crop_image_to_aspect(thumbnail_plan, 149.0 / 160.0)
             thumbnail_plan.thumbnail((149, 160), Image.BICUBIC)
 
             thumbnail_card_io = io.BytesIO()
             thumbnail_card.save(thumbnail_card_io, "WEBP")
             thumbnail_card_io.seek(0)
-            self.thumbnail_card.save(thumbnail_card_name, ContentFile(thumbnail_card_io.read()), save=True)
+            self.thumbnail_card.save(
+                thumbnail_card_name, ContentFile(thumbnail_card_io.read()), save=True
+            )
             thumbnail_card_io.close()
 
             thumbnail_plan_io = io.BytesIO()
             thumbnail_plan.save(thumbnail_plan_io, "WEBP")
             thumbnail_plan_io.seek(0)
-            self.thumbnail_plan.save(thumbnail_plan_name, ContentFile(thumbnail_plan_io.read()), save=True)
+            self.thumbnail_plan.save(
+                thumbnail_plan_name, ContentFile(thumbnail_plan_io.read()), save=True
+            )
             thumbnail_plan_io.close()
 
     @staticmethod
@@ -190,11 +221,13 @@ class RecipeImage(models.Model):
         else:
             new_width = image.width
             new_height = int(image.width / aspect)
-        return image.crop((
-            0.5 * (image.width - new_width),
-            0.5 * (image.height - new_height),
-            0.5 * (image.width - new_width) + new_width,
-            0.5 * (image.height - new_height) + new_height)
+        return image.crop(
+            (
+                0.5 * (image.width - new_width),
+                0.5 * (image.height - new_height),
+                0.5 * (image.width - new_width) + new_width,
+                0.5 * (image.height - new_height) + new_height,
+            )
         )
 
     def save(self, *args, **kwargs):
@@ -240,8 +273,15 @@ class PushSubscription(models.Model):
     auth_key = models.CharField(max_length=50)
     notify_at_new_recipes = models.BooleanField()
 
-    def push_message(self, title: str, body: Optional[str] = None, href: Optional[str] = None,
-                     image: Optional[str] = None, tag: Optional[str] = None, silent: bool = True):
+    def push_message(
+        self,
+        title: str,
+        body: Optional[str] = None,
+        href: Optional[str] = None,
+        image: Optional[str] = None,
+        tag: Optional[str] = None,
+        silent: bool = True,
+    ):
         push_data = {"title": title, "silent": silent}
         if body is not None and body != "":
             push_data["body"] = body
@@ -258,9 +298,9 @@ class PushSubscription(models.Model):
                 "keys": {
                     "auth": self.auth_key,
                     "p256dh": self.p256dh_key,
-                }
+                },
             },
             data=json.dumps(push_data),
             vapid_private_key=os.environ.get("DJANGO_VAPID_PRIVATE_KEY"),
-            vapid_claims={"sub": f"mailto:{os.environ.get('DJANGO_MAIL_ADDRESS')}"}
+            vapid_claims={"sub": f"mailto:{os.environ.get('DJANGO_MAIL_ADDRESS')}"},
         )

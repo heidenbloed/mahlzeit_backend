@@ -1,0 +1,18 @@
+{
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.rulers": [
+        88
+    ],
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+    },
+    "black-formatter.args": [
+        "--extend-exclude",
+        "\".*migrations.*\""
+    ],
+    "isort.args": [
+        "--profile",
+        "black"
+    ],
+}

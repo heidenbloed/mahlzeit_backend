@@ -13,6 +13,8 @@ services:
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backup_data:/home/app/web/backup_data
     environment:
       - POSTGRES_NAME=postgres_dev
       - POSTGRES_USER=postgres
@@ -30,3 +32,4 @@ services:
 
 volumes:
   postgres_data:
+  backup_data:
